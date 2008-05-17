@@ -37,6 +37,7 @@ SOFTWARE.
 
 from math import log, ceil
 from optparse import OptionParser
+from ConfigParser import SafeConfigParser, NoOptionError, NoSectionError
 import time
 import sys
 import os
@@ -135,22 +136,56 @@ def ensure_dir(path):
 config_dir = ensure_dir(os.path.expanduser("~/.diceware.py"))
 cache_dir = ensure_dir(os.path.join(config_dir, "cache"))
 
+# Parse config file
+config_file = os.path.join(config_dir, "config")
+config = SafeConfigParser()
+config.read(config_file)
+
+def config_default(config, section, option, default):
+    """Set default values for options that do not have a value."""
+    try:
+        config.get(section, option)
+    except NoSectionError:
+        config.add_section(section)
+        config.set(section, option, default)
+    except NoOptionError:
+        config.set(section, option, default)
+
+config_default(config, "defaults", "lang", "en")
+config_default(config, "defaults", "words", "5")
+config_default(config, "defaults", "special", "0")
+config_default(config, "defaults", "file", "")
+
+# Sanity checks for config options
+if config.get("defaults", "lang") not in WORD_LIST_URLS.keys():
+    print("error: '%s' is not a valid value for option 'lang'"
+          % config.get("defaults", "lang"))
+    sys.exit(1)
+try:
+    config.getint("defaults", "words")
+    config.getint("defaults", "special")
+except ValueError:
+    print("error: 'words' and 'special' options must have integer values")
+    sys.exit(1)
+
+
 # Parse command line arguments
 parser = OptionParser()
 parser.add_option("-n", "--words", dest="words", type="int", metavar="N",
                   help="generate N words (default: %default)",
-                  default=5)
+                  default=config.getint("defaults", "words"))
 parser.add_option("-s", "--special", dest="special", type="int", metavar="M",
                   help="insert M special characters (default: %default)",
-                  default=0)
+                  default=config.getint("defaults", "special"))
 parser.add_option("-f", "--file", dest="file", metavar="FILE",
-                  help="read the word list from FILE")
+                  help="override the `lang' option and read the word list " +
+                  "from FILE", default=config.get("defaults", "file"))
 linguas = WORD_LIST_URLS.keys()
 linguas.sort()
 parser.add_option("-l", "--lang", dest="lang", metavar="LANG",
                   type="choice", choices=linguas,
                   help="use the word list for LANG (" + ", ".join(linguas) +
-                  ") (default: %default)", default="en")
+                  ") (default: %default)", default=config.get("defaults", "lang"))
 
 options, args = parser.parse_args()
 if args or options.words < 1 or options.special < 0:
