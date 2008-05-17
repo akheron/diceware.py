@@ -62,7 +62,12 @@ class RandomSource(object):
 
     def __init__(self):
         # self.b is an integer of length self.n bits
-        self.b = self.n = 0
+        try:
+            self.b = ord(os.urandom(1))
+        except NotImplementedError:
+            print("error: your operating system does not have a randomness source")
+            sys.exit(1)
+        self.n = 8
 
     def read(self, n=1):
         """Read n bits from the random source and convert to integer.
@@ -73,21 +78,13 @@ class RandomSource(object):
         Return value:
           An n-bit nonnegative integer
 
-        The first bit read is the LSB and the last bit read is the
-        MSB of the returned integer.
-
         """
         r = 0
         for i in xrange(n):
             if self.n == 0:
-                try:
-                    self.b = ord(os.urandom(1))
-                except NotImplementedError:
-                    print("error: this operating system has no randomness source")
-                    sys.exit(1)
+                self.b = ord(os.urandom(1))
                 self.n = 8
             r += (self.b & 1) << i
-            i += 1
             self.b >>= 1
             self.n -= 1
         return r
@@ -130,7 +127,6 @@ parser.add_option("-l", "--lang", dest="lang", metavar="LANG",
                   type="choice", choices=linguas,
                   help="use the word list for LANG (" + ", ".join(linguas) +
                   ") (default: %default)", default="en")
-del linguas
 
 options, args = parser.parse_args()
 if args or options.words < 1 or options.special < 0:
@@ -138,7 +134,6 @@ if args or options.words < 1 or options.special < 0:
     sys.exit(0)
 
 parser.destroy()
-del parser, args
 
 # --file has higher precedence than --lang
 if options.file:
