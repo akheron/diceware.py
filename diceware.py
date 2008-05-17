@@ -40,8 +40,16 @@ from math import log, ceil
 from optparse import OptionParser
 import sys
 
-DEFAULT_WORDLIST = "http://world.std.com/~reinhold/diceware.wordlist.asc"
 SPECIAL_CHARS = "~!#$%^&*()-=+[]\{}:;\"'<>?/0123456789"
+LINGUAS = {
+    "en": "http://world.std.com/~reinhold/diceware.wordlist.asc",
+    "fi": "http://www.iki.fi/kaip/noppaware/noppaware.txt",
+    "it": "http://www.taringamberini.com/download/diceware_it_IT/" +
+          "word_list_diceware_in_italiano.txt",
+    "pl": "http://drfugazi.eu.org/download/dicelist-pl.txt.asc",
+    "se": "http://x42.com/diceware/diceware-sv.txt",
+    "tr": "http://dicewaretr.110mb.com/diceware_tr.txt",
+}
 
 
 class LinuxRandomSource(object):
@@ -109,12 +117,17 @@ parser.add_option("-n", "--words", dest="words", type="int", metavar="N",
 parser.add_option("-s", "--special", dest="special", type="int", metavar="M",
                   help="insert M special characters (default: %default)",
                   default=0)
-parser.add_option("-l", "--list", dest="list", metavar="LIST",
-                  help="use LIST (filename or URL) as the word list "+
-                  "(default: %default)", default=DEFAULT_WORDLIST)
+parser.add_option("-f", "--file", dest="file", metavar="FILE",
+                  help="read the word list from FILE")
+linguas = LINGUAS.keys()
+linguas.sort()
+parser.add_option("-l", "--lang", dest="lang", metavar="LANG",
+                  type="choice", choices=linguas,
+                  help="use the word list for LANG (" + ", ".join(linguas) +
+                  ") (default: %default)", default="en")
+del linguas
 
 options, args = parser.parse_args()
-
 if args or options.words < 1 or options.special < 0:
     parser.print_help()
     sys.exit(0)
@@ -122,15 +135,16 @@ if args or options.words < 1 or options.special < 0:
 parser.destroy()
 del parser, args
 
-if options.list.startswith("http://") or options.list.startswith("ftp://"):
-    try: fobj = urlopen(options.list)
-    except URLError:
-        print("error: unable to open the word list")
+if options.file:
+    try: fobj = open(options.file)
+    except IOError:
+        print("error: unable to open word list file '%s'" % options.file)
         sys.exit(1)
 else:
-    try: fobj = open(options.list)
-    except IOError:
-        print("error: unable to open word list file '%s'" % options.list)
+    list_url = LINGUAS[options.lang]
+    try: fobj = urlopen(list_url)
+    except URLError:
+        print("error: unable to open remote word list '%s'" % list_url)
         sys.exit(1)
 
 
