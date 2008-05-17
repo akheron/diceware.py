@@ -44,7 +44,8 @@ import os
 
 
 SPECIAL_CHARS = "~!#$%^&*()-=+[]\{}:;\"'<>?/0123456789"
-LINGUAS = {
+
+WORD_LIST_URLS = {
     "en": "http://world.std.com/~reinhold/diceware.wordlist.asc",
     "fi": "http://www.iki.fi/kaip/noppaware/noppaware.txt",
     "it": "http://www.taringamberini.com/download/diceware_it_IT/" +
@@ -122,7 +123,7 @@ parser.add_option("-s", "--special", dest="special", type="int", metavar="M",
                   default=0)
 parser.add_option("-f", "--file", dest="file", metavar="FILE",
                   help="read the word list from FILE")
-linguas = LINGUAS.keys()
+linguas = WORD_LIST_URLS.keys()
 linguas.sort()
 parser.add_option("-l", "--lang", dest="lang", metavar="LANG",
                   type="choice", choices=linguas,
@@ -145,7 +146,7 @@ if options.file:
         print("error: unable to open word list file '%s'" % options.file)
         sys.exit(1)
 else:
-    list_url = LINGUAS[options.lang]
+    list_url = WORD_LIST_URLS[options.lang]
     try: fobj = urlopen(list_url)
     except URLError:
         print("error: unable to open remote word list '%s'" % list_url)
