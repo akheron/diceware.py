@@ -37,15 +37,11 @@ SOFTWARE.
 
 from urllib2 import urlopen, URLError
 from math import log, ceil
+from optparse import OptionParser
 import sys
 
 DEFAULT_WORDLIST = "http://world.std.com/~reinhold/diceware.wordlist.asc"
 SPECIAL_CHARS = "~!#$%^&*()-=+[]\{}:;\"'<>?/0123456789"
-
-
-def usage():
-    print(__doc__)
-    sys.exit(1)
 
 
 class LinuxRandomSource(object):
@@ -105,69 +101,65 @@ class LinuxRandomSource(object):
             return i
 
 
-# Check the command line arguments
-argc = len(sys.argv)
+# Parse command line arguments
+parser = OptionParser()
+parser.add_option("-n", "--words", dest="words", type="int", metavar="N",
+                  help="generate N words (default: %default)",
+                  default=5)
+parser.add_option("-s", "--special", dest="special", type="int", metavar="M",
+                  help="insert M special characters (default: %default)",
+                  default=0)
+parser.add_option("-l", "--list", dest="list", metavar="LIST",
+                  help="use LIST (filename or URL) as the word list "+
+                  "(default: %default)", default=DEFAULT_WORDLIST)
 
-if argc > 4:
-    usage()
+options, args = parser.parse_args()
 
-# The Diceware author recommends a 5 word passphrase for most users.
-if argc <= 1: N = 5
+if args or options.words < 1 or options.special < 0:
+    parser.print_help()
+    sys.exit(0)
+
+parser.destroy()
+del parser, args
+
+if options.list.startswith("http://") or options.list.startswith("ftp://"):
+    try: fobj = urlopen(options.list)
+    except URLError:
+        print("error: unable to open the word list")
+        sys.exit(1)
 else:
-    try: N = int(sys.argv[1])
-    except ValueError: usage()
+    try: fobj = open(options.list)
+    except IOError:
+        print("error: unable to open word list file '%s'" % options.list)
+        sys.exit(1)
 
-# No special characters as default
-if argc <= 2: M = 0
-else:
-    try: M = int(sys.argv[2])
-    except ValueError: usage()
-
-if N < 0 or M < 0:
-    usage()
-
-if argc <= 3: fp = urlopen(DEFAULT_WORDLIST)
-else:
-    filename = sys.argv[3]
-    if filename.startswith("http://") or filename.startswith("ftp://"):
-        try: fp = urlopen(filename)
-        except URLError:
-            print("Error: Unable to open the word list")
-            sys.exit(1)
-    elif filename == "-":
-        fp = sys.stdin
-    else:
-        try: fp = open(filename)
-        except IOError:
-            print("Error: Unable to open the word list")
-            sys.exit(1)
 
 # Read the wordlist skipping lines which do not start with 5 digits
 # and a white space character and removing the 5 digits
-wordlist = [ line[6:].strip() for line in fp
+wordlist = [ line[6:].strip() for line in fobj
              if line[0:5].isdigit() and line[5].isspace() ]
-fp.close()
+fobj.close()
 
 # A valid Diceware wordlist has exactly 5**6 = 7776 words
 if len(wordlist) != 7776:
-    print("Error: Invalid word list")
+    print("error: invalid word list format")
     sys.exit(1)
 
 # Initialize the random source
 rnd = LinuxRandomSource()
 
-# Generate N words
-words = [ wordlist[rnd.rand(7776)] for _ in xrange(N) ]
-print("Passphrase   : %s" % " ".join(words))
+# Generate passphrase
+words = [ wordlist[rnd.rand(7776)] for _ in xrange(options.words) ]
+print("passphrase   : %s" % " ".join(words))
 
-# Insert at most M special characters. This is not exactly the
-# procedure described in the Diceware web page, because this handles
-# the case where there are more than 6 words in the passphrase and
-# more than 6 characters in the word.
-for _ in xrange(M):
+# Insert at most options.special special characters. This is not
+# exactly the procedure described in the Diceware web page, because
+# this handles the case where there are more than 6 words in the
+# passphrase and more than 6 characters in the word.
+for _ in xrange(options.special):
     # i is the index of the word in which the special character
     # replacement takes place.
-    i = rnd.rand(N)
+    i = rnd.rand(options.words)
 
     # j is the index of the character to be replaced with a special
     # character.
@@ -181,5 +173,5 @@ for _ in xrange(M):
     word[j] = SPECIAL_CHARS[k]
     words[i] = "".join(word)
 
-if M > 0:
-    print("With specials: %s" % " ".join(words))
+if options.special > 0:
+    print("with specials: %s" % " ".join(words))
