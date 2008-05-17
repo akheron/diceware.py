@@ -140,7 +140,7 @@ wordlist = [ line[6:].strip() for line in fobj
              if line[0:5].isdigit() and line[5].isspace() ]
 fobj.close()
 
-# A valid Diceware wordlist has exactly 5**6 = 7776 words
+# A valid Diceware wordlist has exactly 6**5 = 7776 words
 if len(wordlist) != 7776:
     print("error: invalid word list format")
     sys.exit(1)
