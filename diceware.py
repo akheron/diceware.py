@@ -152,14 +152,14 @@ else:
         sys.exit(1)
 
 
-# Read the wordlist skipping lines which do not start with 5 digits
+# Read the word list skipping lines which do not start with 5 digits
 # and a white space character and removing the 5 digits
-wordlist = [ line[6:].strip() for line in fobj
+word_list = [ line[6:].strip() for line in fobj
              if line[0:5].isdigit() and line[5].isspace() ]
 fobj.close()
 
-# A valid Diceware wordlist has exactly 6**5 = 7776 words
-if len(wordlist) != 7776:
+# A valid Diceware word list has exactly 6**5 = 7776 words
+if len(word_list) != 7776:
     print("error: invalid word list format")
     sys.exit(1)
 
@@ -167,7 +167,7 @@ if len(wordlist) != 7776:
 rnd = RandomSource()
 
 # Generate passphrase
-words = [ wordlist[rnd.rand(7776)] for _ in xrange(options.words) ]
+words = [ word_list[rnd.rand(7776)] for _ in xrange(options.words) ]
 print("passphrase   : %s" % " ".join(words))
 
 # Insert at most options.special special characters. This is not
