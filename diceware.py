@@ -35,12 +35,13 @@ SOFTWARE.
 
 """
 
-from urllib2 import urlopen, URLError
 from math import log, ceil
 from optparse import OptionParser
 import time
 import sys
 import os
+import os.path
+import urllib
 
 
 SPECIAL_CHARS = "~!#$%^&*()-=+[]\{}:;\"'<>?/0123456789"
@@ -146,11 +147,21 @@ if options.file:
         print("error: unable to open word list file '%s'" % options.file)
         sys.exit(1)
 else:
-    list_url = WORD_LIST_URLS[options.lang]
-    try: fobj = urlopen(list_url)
-    except URLError:
-        print("error: unable to open remote word list '%s'" % list_url)
-        sys.exit(1)
+    # Read the cached word list
+    word_list_dir = os.path.expanduser("~/.diceware.py/cache")
+    word_list_path = os.path.join(word_list_dir, options.lang)
+    try:
+        fobj = open(word_list_path)
+    except IOError:
+        # The word list does not exist => cache it
+        word_list_url = WORD_LIST_URLS[options.lang]
+        if not os.path.exists(word_list_dir):
+            os.makedirs(word_list_dir)
+        try: urllib.urlretrieve(word_list_url, word_list_path)
+        except IOError:
+            print("error: unable to open remote word list '%s'" % word_list_url)
+            sys.exit(1)
+        fobj = open(word_list_path)
 
 
 # Read the word list skipping lines which do not start with 5 digits
