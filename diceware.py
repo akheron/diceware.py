@@ -4,8 +4,8 @@
 Copyright (c) 2008 Petri Lehtinen <petri@digip.org>
 
 Diceware passphrase generator generates passphrases by reading random
-bits from the Linux random number generator /dev/random and using them
-to index the Diceware word list, supplied by user or automatically
+data from the operating system random number generator and using it to
+index the Diceware word list, supplied by user or automatically
 downloaded from the Diceware web page. For more information on
 Diceware, see the Diceware web page:
 http://world.std.com/~reinhold/diceware.html
@@ -38,7 +38,10 @@ SOFTWARE.
 from urllib2 import urlopen, URLError
 from math import log, ceil
 from optparse import OptionParser
+import time
 import sys
+import os
+
 
 SPECIAL_CHARS = "~!#$%^&*()-=+[]\{}:;\"'<>?/0123456789"
 LINGUAS = {
@@ -52,16 +55,12 @@ LINGUAS = {
 }
 
 
-class LinuxRandomSource(object):
-    """Read random numbers from Linux random devices."""
+class RandomSource(object):
+    """Generate random numbers from operating system random source."""
 
-    def __init__(self, rndfile="/dev/random"):
-        # File object
-        self.fobj = open(rndfile)
-
-        # self.b has self.n bits left
-        self.b = ord(self.fobj.read(1))
-        self.n = 8
+    def __init__(self):
+        # self.b is an integer of length self.n bits
+        self.b = self.n = 0
 
     def read(self, n=1):
         """Read n bits from the random source and convert to integer.
@@ -79,7 +78,11 @@ class LinuxRandomSource(object):
         r = 0
         for i in xrange(n):
             if self.n == 0:
-                self.b = ord(self.fobj.read(1))
+                try:
+                    self.b = ord(os.urandom(1))
+                except NotImplementedError:
+                    print("error: this operating system has no randomness source")
+                    sys.exit(1)
                 self.n = 8
             r += (self.b & 1) << i
             i += 1
@@ -160,7 +163,7 @@ if len(wordlist) != 7776:
     sys.exit(1)
 
 # Initialize the random source
-rnd = LinuxRandomSource()
+rnd = RandomSource()
 
 # Generate passphrase
 words = [ wordlist[rnd.rand(7776)] for _ in xrange(options.words) ]
