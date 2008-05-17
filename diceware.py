@@ -111,6 +111,30 @@ class RandomSource(object):
             return i
 
 
+def ensure_dir(path):
+    """Ensure that path is a directory creating it if necessary.
+
+    If path already exists and is not a directory, print an error
+    message and quit with sys.exit().
+
+    Parameters:
+      path   String specifying the path to ensure
+
+    Return value:
+      path
+    
+    """
+    if not os.path.exists(path):
+        os.makedirs(path)
+    elif not os.path.isdir(path):
+        print("error: '%s' is not a directory" % path)
+        sys.exit(1)
+    return path
+
+
+config_dir = ensure_dir(os.path.expanduser("~/.diceware.py"))
+cache_dir = ensure_dir(os.path.join(config_dir, "cache"))
+
 # Parse command line arguments
 parser = OptionParser()
 parser.add_option("-n", "--words", dest="words", type="int", metavar="N",
@@ -143,15 +167,12 @@ if options.file:
         sys.exit(1)
 else:
     # Read the cached word list
-    word_list_dir = os.path.expanduser("~/.diceware.py/cache")
-    word_list_path = os.path.join(word_list_dir, options.lang)
+    word_list_path = os.path.join(cache_dir, options.lang)
     try:
         fobj = open(word_list_path)
     except IOError:
         # The word list does not exist => cache it
         word_list_url = WORD_LIST_URLS[options.lang]
-        if not os.path.exists(word_list_dir):
-            os.makedirs(word_list_dir)
         try: urllib.urlretrieve(word_list_url, word_list_path)
         except IOError:
             print("error: unable to open remote word list '%s'" % word_list_url)
