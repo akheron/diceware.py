@@ -3,36 +3,12 @@
 """Diceware passphrase generator
 Copyright (c) 2008 Petri Lehtinen <petri@digip.org>
 
-Command line: diceware.py [N] [M] [SRC]
-
-Options:
-   N     Number of words in the generated passphrase (default: 5)
-   M     Number of special characters inserted to the passphrase
-         (default: 0)
-   SRC   The source of the word list. May be an URL (http://... or
-         ftp://...), a file name, or - for standard input.
-         (default: http://world.std.com/~reinhold/diceware.wordlist.asc)
-
-diceware.py generates passphrases by reading random bits from the
-Linux random number generator /dev/random and using them to index
-the Diceware word list, supplied by user or automatically downloaded
-from the Diceware web page. For more information on Diceware, see
-the Diceware web page: http://world.std.com/~reinhold/diceware.html
-
-The optional command line argument M denotes the number of special
-characters to insert to the passphrase after generating it. The
-process of inserting special characters to a passphrase is described
-in the Diceware web page. The number of special characters actually
-nserted may be less than M (if M > 1) because a special character
-may be inserted to a location where there already is a special
-character.
-
-Altough this program uses the Linux kernel random number generator,
-which generates truly random numbers, it is still safer to stick to
-the procedure given in the Diceware web page and use an ordinary
-dice to generate passphrases. An attacker may monitor your system or
-even control the kernel random number generator. However, there is
-no way he could monitor an ordinary dice without actually seeing it.
+Diceware passphrase generator generates passphrases by reading random
+bits from the Linux random number generator /dev/random and using them
+to index the Diceware word list, supplied by user or automatically
+downloaded from the Diceware web page. For more information on
+Diceware, see the Diceware web page:
+http://world.std.com/~reinhold/diceware.html
 
 """
 
