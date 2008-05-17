@@ -138,6 +138,7 @@ if args or options.words < 1 or options.special < 0:
 parser.destroy()
 del parser, args
 
+# --file has higher precedence than --lang
 if options.file:
     try: fobj = open(options.file)
     except IOError:
