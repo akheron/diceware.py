@@ -81,7 +81,7 @@ class RandomSource(object):
 
         """
         r = 0
-        for i in xrange(n):
+        for i in range(n):
             if self.n == 0:
                 self.b = ord(os.urandom(1))
                 self.n = 8
@@ -180,8 +180,7 @@ parser.add_option("-s", "--special", dest="special", type="int", metavar="M",
 parser.add_option("-f", "--file", dest="file", metavar="FILE",
                   help="override the `lang' option and read the word list " +
                   "from FILE", default=config.get("defaults", "file"))
-linguas = WORD_LIST_URLS.keys()
-linguas.sort()
+linguas = sorted(WORD_LIST_URLS.keys())
 parser.add_option("-l", "--lang", dest="lang", metavar="LANG",
                   type="choice", choices=linguas,
                   help="use the word list for LANG (" + ", ".join(linguas) +
@@ -230,14 +229,14 @@ if len(word_list) != 7776:
 rnd = RandomSource()
 
 # Generate passphrase
-words = [ word_list[rnd.rand(7776)] for _ in xrange(options.words) ]
+words = [ word_list[rnd.rand(7776)] for _ in range(options.words) ]
 print("passphrase   : %s" % " ".join(words))
 
 # Insert at most options.special special characters. This is not
 # exactly the procedure described in the Diceware web page, because
 # this handles the case where there are more than 6 words in the
 # passphrase and more than 6 characters in the word.
-for _ in xrange(options.special):
+for _ in range(options.special):
     # i is the index of the word in which the special character
     # replacement takes place.
     i = rnd.rand(options.words)
