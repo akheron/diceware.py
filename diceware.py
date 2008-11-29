@@ -38,7 +38,7 @@ SOFTWARE.
 from math import log, ceil
 from optparse import OptionParser
 from ConfigParser import SafeConfigParser, NoOptionError, NoSectionError
-import time
+from random import SystemRandom
 import sys
 import os
 import os.path
@@ -56,60 +56,6 @@ WORD_LIST_URLS = {
     "se": "http://x42.com/diceware/diceware-sv.txt",
     "tr": "http://dicewaretr.110mb.com/diceware_tr.txt",
 }
-
-
-class RandomSource(object):
-    """Generate random numbers from operating system random source."""
-
-    def __init__(self):
-        # self.b is an integer of length self.n bits
-        try:
-            self.b = ord(os.urandom(1))
-        except NotImplementedError:
-            print("error: your operating system does not have a randomness source")
-            sys.exit(1)
-        self.n = 8
-
-    def read(self, n=1):
-        """Read n bits from the random source and convert to integer.
-
-        Parameters:
-          n   The number of bits to read
-
-        Return value:
-          An n-bit nonnegative integer
-
-        """
-        r = 0
-        for i in range(n):
-            if self.n == 0:
-                self.b = ord(os.urandom(1))
-                self.n = 8
-            r += (self.b & 1) << i
-            self.b >>= 1
-            self.n -= 1
-        return r
-
-    def rand(self, n):
-        """Generate a random integer between 0 and n-1.
-
-        Parameters:
-          n   integer > 0.
-
-        Return value:
-          A random integer between 0 and n-1
-
-        """
-        assert(isinstance(n, int) and n > 0)
-        if n == 1:
-            return 0
-        else:
-            # Number of bits needed
-            b = int(ceil(log(n, 2)))
-            i = self.read(b)
-            while i >= n:
-                i = self.read(b)
-            return i
 
 
 def ensure_dir(path):
@@ -226,10 +172,10 @@ if len(word_list) != 7776:
     sys.exit(1)
 
 # Initialize the random source
-rnd = RandomSource()
+rnd = SystemRandom()
 
 # Generate passphrase
-words = [ word_list[rnd.rand(7776)] for _ in range(options.words) ]
+words = [ rnd.choice(word_list) for _ in range(options.words) ]
 print("passphrase   : %s" % " ".join(words))
 
 # Insert at most options.special special characters. This is not
@@ -239,14 +185,14 @@ print("passphrase   : %s" % " ".join(words))
 for _ in range(options.special):
     # i is the index of the word in which the special character
     # replacement takes place.
-    i = rnd.rand(options.words)
+    i = rnd.randrange(options.words)
 
     # j is the index of the character to be replaced with a special
     # character.
-    j = rnd.rand(len(words[i]))
+    j = rnd.randrange(len(words[i]))
 
     # k is the index of the special character
-    k = rnd.rand(36)
+    k = rnd.randrange(36)
 
     # Split to individual characters, replace the k'th char, unsplit
     word = map(None, words[i])
