@@ -57,6 +57,21 @@ WORD_LIST_URLS = {
     "tr": "http://dicewaretr.110mb.com/diceware_tr.txt",
 }
 
+def generate_grid(word_list, words=5, specials=0):
+    longest_word_length = 0
+    result = []
+    for _ in range(words):
+        word_row, with_specials = generate(word_list, words, specials)
+        if specials:
+            result.append(with_specials)
+        else:
+            result.append(word_row)
+
+        # Assume word_row and with_specials contain equal length words
+        long_word_length = max(len(x) for x in word_row)
+        longest_word_length = max(long_word_length, longest_word_length)
+
+    return result, longest_word_length
 
 def generate(word_list, words=5, specials=0):
     rnd = SystemRandom()
@@ -179,6 +194,9 @@ def main():
 
     # Parse command line arguments
     parser = OptionParser()
+    parser.add_option("-g", "--grid", dest="grid", action="store_true",
+                      help="Instead of a single line, generate NxN grid of "+
+                      "words. This makes eavesdropping harder")
     parser.add_option("-n", "--words", dest="words", type="int", metavar="N",
                       help="generate N words (default: %default)",
                       default=config.getint("defaults", "words"))
@@ -216,11 +234,17 @@ def main():
     else:
         word_list = get_word_list(cache_dir, options.lang)
 
-    words, with_specials = generate(word_list, options.words, options.special)
-    print("passphrase   : %s" % " ".join(words))
-    if options.special > 0:
-        print("with specials: %s" % " ".join(with_specials))
-
+    if not options.grid:
+        words, with_specials = generate(word_list, options.words,
+                                        options.special)
+        print("passphrase   : %s" % " ".join(words))
+        if options.special > 0:
+            print("with specials: %s" % " ".join(with_specials))
+    else:
+        words, length = generate_grid(word_list, options.words,
+                                            options.special)
+        for word_row in words:
+            print " ".join([word.ljust(length) for word in word_row])
 
 if __name__ == "__main__":
     main()
