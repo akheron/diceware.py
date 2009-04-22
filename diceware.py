@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 """Diceware passphrase generator
-Copyright (c) 2008 Petri Lehtinen <petri@digip.org>
 
 Diceware passphrase generator generates passphrases by reading random
 data from the operating system random number generator and using it to
@@ -13,6 +12,8 @@ http://world.std.com/~reinhold/diceware.html
 """
 
 __license__ = """
+Copyright (c) 2008, 2009 Petri Lehtinen <petri@digip.org>
+
 Permission is hereby granted, free of charge, to any person
 obtaining a copy of this software and associated documentation files
 (the "Software"), to deal in the Software without restriction,
