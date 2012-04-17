@@ -56,6 +56,7 @@ WORD_LIST_URLS = {
     "pl": "http://drfugazi.eu.org/download/dicelist-pl.txt.asc",
     "se": "http://x42.com/diceware/diceware-sv.txt",
     "tr": "http://dicewaretr.110mb.com/diceware_tr.txt",
+    "nl": "http://theworld.com/~reinhold/DicewareDutch.txt",
 }
 
 def generate_grid(word_list, words=5, specials=0):
