@@ -53,7 +53,6 @@ WORD_LIST_URLS = {
     "fi": "http://www.iki.fi/kaip/noppaware/noppaware.txt",
     "it": "http://www.taringamberini.com/download/diceware_it_IT/" +
           "word_list_diceware_in_italiano.txt",
-    "pl": "http://drfugazi.eu.org/download/dicelist-pl.txt.asc",
     "se": "http://x42.com/diceware/diceware-sv.txt",
     "tr": "http://dicewaretr.110mb.com/diceware_tr.txt",
     "nl": "http://theworld.com/~reinhold/DicewareDutch.txt",
