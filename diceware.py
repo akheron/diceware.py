@@ -180,6 +180,7 @@ def main():
     config_default(config, "defaults", "words", "5")
     config_default(config, "defaults", "special", "0")
     config_default(config, "defaults", "file", "")
+    config_default(config, "defaults", "separator", " ")
 
     # Sanity checks for config options
     if config.get("defaults", "lang") not in WORD_LIST_URLS.keys():
@@ -207,6 +208,9 @@ def main():
     parser.add_option("-f", "--file", dest="file", metavar="FILE",
                       help="override the `lang' option and read the word list " +
                       "from FILE", default=config.get("defaults", "file"))
+    parser.add_option("-p", "--separator", dest="separator", type="string", metavar="P",
+                      help="specify the separator between words (default: %default)",
+                      default=config.get("defaults", "separator"))
     linguas = sorted(WORD_LIST_URLS.keys())
     parser.add_option("-l", "--lang", dest="lang", metavar="LANG",
                       type="choice", choices=linguas,
@@ -238,9 +242,9 @@ def main():
     if not options.grid:
         words, with_specials = generate(word_list, options.words,
                                         options.special)
-        print("passphrase   : %s" % " ".join(words))
+        print("passphrase   : %s" % options.separator.join(words))
         if options.special > 0:
-            print("with specials: %s" % " ".join(with_specials))
+            print("with specials: %s" % options.separator.join(with_specials))
     else:
         words, length = generate_grid(word_list, options.words,
                                             options.special)
