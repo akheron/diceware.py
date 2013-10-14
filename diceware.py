@@ -50,9 +50,9 @@ SPECIAL_CHARS = "~!#$%^&*()-=+[]\{}:;\"'<>?/0123456789"
 
 WORD_LIST_URLS = {
     "en": "http://world.std.com/~reinhold/diceware.wordlist.asc",
-    "fi": "http://www.iki.fi/kaip/noppaware/noppaware.txt",
-    "it": "http://www.taringamberini.com/download/diceware_it_IT/" +
-          "word_list_diceware_in_italiano.txt",
+    "fi": "http://users.ics.aalto.fi/kaip/noppaware/noppaware.txt",
+    "it": "https://raw.github.com/taringamberini/diceware_word_list_it-IT/"
+          "master/diceware/wordlist/word_list_diceware_it-IT-1.0.11.txt",
     "se": "http://x42.com/diceware/diceware-sv.txt",
     "tr": "http://dicewaretr.110mb.com/diceware_tr.txt",
     "nl": "http://theworld.com/~reinhold/DicewareDutch.txt",
